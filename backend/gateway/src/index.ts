@@ -29,6 +29,7 @@ app.get('/api/me', authMiddleware, getCurrentUser);
 
 app.use('/api/auth', proxy(process.env.AUTH_SERVICE_URL as string))
 app.use('/api/product', authMiddleware, proxyWithHeaders(process.env.PRODUCT_SERVICE_URL as string))
+app.use('/api/public-product', proxy(process.env.PRODUCT_SERVICE_URL as string))
 
 app.listen(PORT, ()=>{
     console.log(`Gateway Server running`);

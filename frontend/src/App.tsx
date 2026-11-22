@@ -6,6 +6,9 @@ import type { RootState } from "./redux/store";
 import Partner from "./pages/Partner";
 import Admin from "./pages/Admin";
 import { Toaster } from "sonner";
+import { useGetAllPublicData } from "./hooks/useGetAllPublicData";
+import PublicProfilePage from "./pages/PublicProfilePage";
+import PublicProductPage from "./pages/PublicProductPage";
 
 
 interface IPartnerprofile {
@@ -63,6 +66,7 @@ export interface IAdmin {
 
 function App() {
   useGetCurrentUser();
+  useGetAllPublicData();
 
 
   const { user, loading } = useSelector((state: RootState) => state.user);
@@ -83,6 +87,8 @@ function App() {
         <Route path="/" element={user?.role === "admin" ? ( <Navigate to="/admin" />) : <Home />} />
         <Route path="/admin" element={user?.role === "admin" ? <Admin /> : <Navigate to="/" />} />
         <Route path="/partner" element={user?.role === "partner" ? <Partner /> : (user?.role === "admin" ? <Navigate to="/admin" /> : <Navigate to="/" />)} />
+        <Route path="/profile/:slug" element={<PublicProfilePage />} />
+        <Route path="/product/:slug" element={<PublicProductPage />} />
       </Routes>
       <Toaster
         position="top-center"

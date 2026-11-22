@@ -132,3 +132,32 @@ export const updatePartner = async (req: Request, res: Response) => {
     res.status(500).json({ message: "failed to update partner profile" });
   }
 };
+
+
+
+
+export const getAllPublicPartner = async(req: Request, res: Response) => {
+    try {
+        //from cache
+        const cachedData = await redis.get("public:partners");
+        if(cachedData) return res.status(200).json({partners: JSON.parse(cachedData), source: "cache"})
+
+        //from mongodb
+        const partners = await User.find({
+            role: "partner", isActive: true,
+           "partnerProfile.slug": {$ne: "", $exists: true}
+          })
+
+        await redis.set(
+            "public:partners",
+            JSON.stringify(partners),
+            "EX",
+            60 * 10,
+        );
+
+        res.status(200).json({partners, source: "db"})
+
+    } catch (error) {
+        res.status(500).json({ message: "failed to get partner" });
+    }
+}
