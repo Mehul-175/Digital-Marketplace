@@ -13,10 +13,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  
   BarChart,
   Bar,
-
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
@@ -92,7 +90,7 @@ interface AIAnalyticsResponse {
     }[];
   };
 
-  ai: {
+  aiResponse: {
     summary: string;
 
     insights: {
@@ -118,10 +116,22 @@ interface AIAnalyticsResponse {
 // INSIGHT TYPE -> COLOR / ICON
 // ==========================================
 
-const INSIGHT_META: Record<InsightType, { icon: LucideIcon; className: string }> = {
-  warning: { icon: AlertTriangle, className: "bg-amber-50 text-amber-700 border-amber-200" },
-  neutral: { icon: Circle, className: "bg-slate-50 text-slate-600 border-slate-200" },
-  positive: { icon: CheckCircle2, className: "bg-green-50 text-green-700 border-green-200" },
+const INSIGHT_META: Record<
+  InsightType,
+  { icon: LucideIcon; className: string }
+> = {
+  warning: {
+    icon: AlertTriangle,
+    className: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  neutral: {
+    icon: Circle,
+    className: "bg-slate-50 text-slate-600 border-slate-200",
+  },
+  positive: {
+    icon: CheckCircle2,
+    className: "bg-green-50 text-green-700 border-green-200",
+  },
 };
 
 function formatDateShort(value: unknown): string {
@@ -129,9 +139,6 @@ function formatDateShort(value: unknown): string {
   if (Number.isNaN(date.getTime())) return String(value ?? "");
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
-
-
-
 
 // ==========================================
 // PROPS
@@ -173,7 +180,8 @@ export default function AIAnalytics({ analyticsData }: AIAnalyticsProps) {
       // SAVE RESPONSE
       // ====================================
 
-      setAnalytics(data.data);
+
+      setAnalytics(data.AIAnalysis);
 
       setCached(data.cached ?? false);
 
@@ -191,7 +199,9 @@ export default function AIAnalytics({ analyticsData }: AIAnalyticsProps) {
     } catch (error: any) {
       console.error("AI Analytics Error:", error);
 
-      toast.error(error.response?.data?.message || "Failed to generate AI analytics");
+      toast.error(
+        error.response?.data?.message || "Failed to generate AI analytics",
+      );
     } finally {
       setLoading(false);
     }
@@ -230,7 +240,7 @@ export default function AIAnalytics({ analyticsData }: AIAnalyticsProps) {
 
             {analytics && (
               <Badge className="bg-indigo-50 text-indigo-700 hover:bg-indigo-50 uppercase">
-               Powered by Groq
+                Powered by Groq
               </Badge>
             )}
           </div>
@@ -279,7 +289,9 @@ export default function AIAnalytics({ analyticsData }: AIAnalyticsProps) {
           <CardContent className="py-10 text-center">
             <Sparkles className="h-8 w-8 mx-auto text-indigo-500 mb-3" />
 
-            <p className="font-medium text-slate-900">Ready to analyze your store</p>
+            <p className="font-medium text-slate-900">
+              Ready to analyze your store
+            </p>
 
             <p className="text-sm text-slate-500 mt-1">
               Click &quot;Check AI Analytics&quot; to get AI-powered insights.
@@ -296,7 +308,7 @@ export default function AIAnalytics({ analyticsData }: AIAnalyticsProps) {
         <div className="space-y-5">
           {/* Revenue Trend + Sales Trend */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-             <Card>
+            <Card>
               <CardHeader>
                 <CardTitle className="text-base">Sales Trend</CardTitle>
               </CardHeader>
@@ -304,22 +316,42 @@ export default function AIAnalytics({ analyticsData }: AIAnalyticsProps) {
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart data={analytics.charts.salesTrend}>
                     <defs>
-                      <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                      <linearGradient
+                        id="salesGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
                         <stop offset="0%" stopColor="#4f46e5" stopOpacity={1} />
-                        <stop offset="100%" stopColor="#a5b4fc" stopOpacity={1} />
+                        <stop
+                          offset="100%"
+                          stopColor="#a5b4fc"
+                          stopOpacity={1}
+                        />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="#e2e8f0"
+                      vertical={false}
+                    />
                     <XAxis
                       dataKey="date"
                       tickFormatter={formatDateShort}
                       tick={{ fontSize: 11, fill: "#64748b" }}
                     />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#64748b" }} />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                    />
                     <Tooltip
                       labelFormatter={formatDateShort}
                       formatter={(value: any) => [Number(value), "Sales"]}
-                      contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0" }}
+                      contentStyle={{
+                        borderRadius: 8,
+                        border: "1px solid #e2e8f0",
+                      }}
                       cursor={{ fill: "#eef2ff" }}
                     />
                     <Bar
@@ -335,68 +367,64 @@ export default function AIAnalytics({ analyticsData }: AIAnalyticsProps) {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Product Performance</CardTitle>
+                <CardTitle className="text-base">Revenue by Product</CardTitle>
               </CardHeader>
               <CardContent>
-                {(() => {
-                  const maxSales = Math.max(
-                    1,
-                    ...analytics.charts.productPerformance.map((p) => p.sales)
-                  );
-                  const maxRevenue = Math.max(
-                    1,
-                    ...analytics.charts.productPerformance.map((p) => p.revenue)
-                  );
-                  const radarData = analytics.charts.productPerformance.map((p) => ({
-                    product: p.product,
-                    sales: p.sales,
-                    revenue: p.revenue,
-                    salesScore: (p.sales / maxSales) * 100,
-                    revenueScore: (p.revenue / maxRevenue) * 100,
-                  }));
-
-                  return (
-                    <ResponsiveContainer width="100%" height={300}>
-                      <RadarChart data={radarData} outerRadius="70%">
-                        <PolarGrid stroke="#e2e8f0" />
-                        <PolarAngleAxis
-                          dataKey="product"
-                          tick={{ fontSize: 11, fill: "#334155" }}
-                        />
-                        <PolarRadiusAxis tick={false} axisLine={false} domain={[0, 100]} />
-                        <Tooltip
-                          contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0" }}
-                          formatter={(value: any, name: any, props: any) => {
-                            const row = props.payload;
-                            if (name === "Sales") return [row.sales, "Sales"];
-                            if (name === "Revenue") return [`₹${row.revenue.toFixed(2)}`, "Revenue"];
-                            return [value, name];
-                          }}
-                        />
-                        <Legend wrapperStyle={{ fontSize: 12 }} />
-                        <Radar
-                          name="Sales"
-                          dataKey="salesScore"
-                          stroke="#4f46e5"
-                          fill="#4f46e5"
-                          fillOpacity={0.35}
-                        />
-                        <Radar
-                          name="Revenue"
-                          dataKey="revenueScore"
-                          stroke="#080000"
-                          fill="#040000"
-                          fillOpacity={0.25}
-                        />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                  );
-                })()}
+                <ResponsiveContainer
+                  width="100%"
+                  height={Math.max(
+                    240,
+                    analytics.charts.productPerformance.length * 48,
+                  )}
+                >
+                  <BarChart
+                    layout="vertical"
+                    data={[...analytics.charts.productPerformance].sort(
+                      (a, b) => b.revenue - a.revenue,
+                    )}
+                    margin={{ left: 8, right: 16 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="#e2e8f0"
+                      horizontal={false}
+                    />
+                    <XAxis
+                      type="number"
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      tickFormatter={v => `₹${v}`}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="product"
+                      width={110}
+                      tick={{ fontSize: 11, fill: "#334155" }}
+                      tickFormatter={(v: string) =>
+                        v.length > 16 ? v.slice(0, 16) + "…" : v
+                      }
+                    />
+                    <Tooltip
+                      cursor={{ fill: "#eef2ff" }}
+                      contentStyle={{
+                        borderRadius: 8,
+                        border: "1px solid #e2e8f0",
+                      }}
+                      formatter={(value: any, _name: any, props: any) => [
+                        `₹${Number(value).toFixed(2)} (${props.payload.sales} sales)`,
+                        "Revenue",
+                      ]}
+                    />
+                    <Bar
+                      dataKey="revenue"
+                      fill="#4f46e5"
+                      radius={[0, 6, 6, 0]}
+                      maxBarSize={28}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
-
-         
 
           {/* AI Summary */}
           <Card className="border-indigo-100 bg-indigo-50">
@@ -407,7 +435,9 @@ export default function AIAnalytics({ analyticsData }: AIAnalyticsProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-indigo-800 text-sm leading-relaxed">{analytics.ai.summary}</p>
+              <p className="text-indigo-800 text-sm leading-relaxed">
+                {analytics.aiResponse.summary}
+              </p>
             </CardContent>
           </Card>
 
@@ -417,7 +447,7 @@ export default function AIAnalytics({ analyticsData }: AIAnalyticsProps) {
               <CardTitle className="text-base">AI Insights</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {analytics.ai.insights.map((insight, index) => {
+              {analytics.aiResponse.insights.map((insight, index) => {
                 const meta = INSIGHT_META[insight.type];
                 const Icon = meta.icon;
                 return (
@@ -428,7 +458,9 @@ export default function AIAnalytics({ analyticsData }: AIAnalyticsProps) {
                     <Icon className="h-4 w-4 shrink-0 mt-0.5" />
                     <div>
                       <p className="font-medium">{insight.title}</p>
-                      <p className="text-sm opacity-90 mt-0.5">{insight.description}</p>
+                      <p className="text-sm opacity-90 mt-0.5">
+                        {insight.description}
+                      </p>
                     </div>
                   </div>
                 );
@@ -446,8 +478,12 @@ export default function AIAnalytics({ analyticsData }: AIAnalyticsProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="font-semibold text-slate-900">{analytics.ai.topProduct.title}</p>
-                <p className="text-sm text-slate-500 mt-1">{analytics.ai.topProduct.reason}</p>
+                <p className="font-semibold text-slate-900">
+                  {analytics.aiResponse.topProduct.title}
+                </p>
+                <p className="text-sm text-slate-500 mt-1">
+                  {analytics.aiResponse.topProduct.reason}
+                </p>
               </CardContent>
             </Card>
 
@@ -460,7 +496,7 @@ export default function AIAnalytics({ analyticsData }: AIAnalyticsProps) {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-slate-600 leading-relaxed">
-                  {analytics.ai.growthOpportunity}
+                  {analytics.aiResponse.growthOpportunity}
                 </p>
               </CardContent>
             </Card>
@@ -475,14 +511,18 @@ export default function AIAnalytics({ analyticsData }: AIAnalyticsProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {analytics.ai.recommendations.map((recommendation, index) => (
-                <div key={index} className="flex items-start gap-4">
-                  <span className="shrink-0 h-7 w-7 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold flex items-center justify-center">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <p className="text-sm text-slate-600 leading-relaxed pt-0.5">{recommendation}</p>
-                </div>
-              ))}
+              {analytics.aiResponse.recommendations.map(
+                (recommendation, index) => (
+                  <div key={index} className="flex items-start gap-4">
+                    <span className="shrink-0 h-7 w-7 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold flex items-center justify-center">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <p className="text-sm text-slate-600 leading-relaxed pt-0.5">
+                      {recommendation}
+                    </p>
+                  </div>
+                ),
+              )}
             </CardContent>
           </Card>
         </div>

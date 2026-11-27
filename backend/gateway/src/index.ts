@@ -31,6 +31,7 @@ app.use('/api/product', authMiddleware, proxyWithHeaders(process.env.PRODUCT_SER
 app.use('/api/public-product', proxy(process.env.PRODUCT_SERVICE_URL as string))
 app.use('/api/order', proxy(process.env.ORDER_SERVICE_URL as string))
 app.use('/api/partner/order', authMiddleware, proxyWithHeaders(process.env.ORDER_SERVICE_URL as string))
+app.use('/api/ai', authMiddleware, proxyWithHeaders(process.env.AI_SERVICE_URL as string))
 
 app.listen(PORT, ()=>{
     console.log(`Gateway Server running`);
