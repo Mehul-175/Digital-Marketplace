@@ -1,8 +1,8 @@
 import express from "express"
-import dotenv from "dotenv"
+import "dotenv/config";
 import cookieParser from "cookie-parser"
 import { connectDB } from "./configs/db.js";
-dotenv.config();
+
 
 const app = express();
 
@@ -26,6 +26,10 @@ app.use("/", adminRoutes);
 //partner routes
 import partnerRoutes from "./routes/partner.routes.js";
 app.use("/", partnerRoutes);
+
+//internal routes
+import internalRoutes from "./routes/internal.routes.js"
+app.use("/internal", internalRoutes);
 
 app.listen(PORT, ()=>{
     console.log(`auth sevices running`);

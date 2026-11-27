@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import { useGetAllPublicData } from "./hooks/useGetAllPublicData";
 import PublicProfilePage from "./pages/PublicProfilePage";
 import PublicProductPage from "./pages/PublicProductPage";
+import { useOrders } from "./hooks/useOrders";
 
 
 interface IPartnerprofile {
@@ -67,6 +68,7 @@ export interface IAdmin {
 function App() {
   useGetCurrentUser();
   useGetAllPublicData();
+  useOrders();
 
 
   const { user, loading } = useSelector((state: RootState) => state.user);

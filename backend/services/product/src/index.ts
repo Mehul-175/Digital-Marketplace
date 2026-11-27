@@ -1,8 +1,9 @@
 import express from "express"
-import dotenv from "dotenv"
+import "dotenv/config";
 import { connectDB } from "./configs/db.js";
-import productRouter from "./routes/product.route.js";
-dotenv.config();
+import productRouter from "./routes/product.routes.js";
+import internalRouter from "./routes/internal.routes.js";
+
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.get('/health', (req, res)=>{
 })
 
 app.use('/', productRouter);
+app.use('/internal', internalRouter);
 
 
 app.listen(PORT, ()=>{
